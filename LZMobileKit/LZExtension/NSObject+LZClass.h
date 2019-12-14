@@ -30,8 +30,8 @@ typedef NSArray * (^LZIgnoredCodingPropertyNames)(void);
 /**
  *  遍历所有的类
  */
-+ (void)mj_enumerateClasses:(LZClassesEnumeration)enumeration;
-+ (void)mj_enumerateAllClasses:(LZClassesEnumeration)enumeration;
++ (void)lz_enumerateClasses:(LZClassesEnumeration)enumeration;
++ (void)lz_enumerateAllClasses:(LZClassesEnumeration)enumeration;
 
 #pragma mark - 属性白名单配置
 /**
@@ -39,12 +39,12 @@ typedef NSArray * (^LZIgnoredCodingPropertyNames)(void);
  *
  *  @param allowedPropertyNames          这个数组中的属性名才会进行字典和模型的转换
  */
-+ (void)mj_setupAllowedPropertyNames:(LZAllowedPropertyNames)allowedPropertyNames;
++ (void)lz_setupAllowedPropertyNames:(LZAllowedPropertyNames)allowedPropertyNames;
 
 /**
  *  这个数组中的属性名才会进行字典和模型的转换
  */
-+ (NSMutableArray *)mj_totalAllowedPropertyNames;
++ (NSMutableArray *)lz_totalAllowedPropertyNames;
 
 #pragma mark - 属性黑名单配置
 /**
@@ -52,12 +52,12 @@ typedef NSArray * (^LZIgnoredCodingPropertyNames)(void);
  *
  *  @param ignoredPropertyNames          这个数组中的属性名将会被忽略：不进行字典和模型的转换
  */
-+ (void)mj_setupIgnoredPropertyNames:(LZIgnoredPropertyNames)ignoredPropertyNames;
++ (void)lz_setupIgnoredPropertyNames:(LZIgnoredPropertyNames)ignoredPropertyNames;
 
 /**
  *  这个数组中的属性名将会被忽略：不进行字典和模型的转换
  */
-+ (NSMutableArray *)mj_totalIgnoredPropertyNames;
++ (NSMutableArray *)lz_totalIgnoredPropertyNames;
 
 #pragma mark - 归档属性白名单配置
 /**
@@ -65,12 +65,12 @@ typedef NSArray * (^LZIgnoredCodingPropertyNames)(void);
  *
  *  @param allowedCodingPropertyNames          这个数组中的属性名才会进行归档
  */
-+ (void)mj_setupAllowedCodingPropertyNames:(LZAllowedCodingPropertyNames)allowedCodingPropertyNames;
++ (void)lz_setupAllowedCodingPropertyNames:(LZAllowedCodingPropertyNames)allowedCodingPropertyNames;
 
 /**
  *  这个数组中的属性名才会进行字典和模型的转换
  */
-+ (NSMutableArray *)mj_totalAllowedCodingPropertyNames;
++ (NSMutableArray *)lz_totalAllowedCodingPropertyNames;
 
 #pragma mark - 归档属性黑名单配置
 /**
@@ -78,13 +78,13 @@ typedef NSArray * (^LZIgnoredCodingPropertyNames)(void);
  *
  *  @param ignoredCodingPropertyNames          这个数组中的属性名将会被忽略：不进行归档
  */
-+ (void)mj_setupIgnoredCodingPropertyNames:(LZIgnoredCodingPropertyNames)ignoredCodingPropertyNames;
++ (void)lz_setupIgnoredCodingPropertyNames:(LZIgnoredCodingPropertyNames)ignoredCodingPropertyNames;
 
 /**
  *  这个数组中的属性名将会被忽略：不进行归档
  */
-+ (NSMutableArray *)mj_totalIgnoredCodingPropertyNames;
++ (NSMutableArray *)lz_totalIgnoredCodingPropertyNames;
 
 #pragma mark - 内部使用
-+ (void)mj_setupBlockReturnValue:(id (^)(void))block key:(const char *)key;
++ (void)lz_setupBlockReturnValue:(id (^)(void))block key:(const char *)key;
 @end

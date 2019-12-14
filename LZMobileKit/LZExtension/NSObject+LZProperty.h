@@ -35,7 +35,7 @@ typedef id (^LZNewValueFromOldValue)(id object, id oldValue, LZProperty *propert
 /**
  *  遍历所有的成员
  */
-+ (void)mj_enumerateProperties:(LZPropertiesEnumeration)enumeration;
++ (void)lz_enumerateProperties:(LZPropertiesEnumeration)enumeration;
 
 #pragma mark - 新值配置
 /**
@@ -43,8 +43,8 @@ typedef id (^LZNewValueFromOldValue)(id object, id oldValue, LZProperty *propert
  *
  *  @param newValueFormOldValue 用于过滤字典中的值
  */
-+ (void)mj_setupNewValueFromOldValue:(LZNewValueFromOldValue)newValueFormOldValue;
-+ (id)mj_getNewValueFromObject:(__unsafe_unretained id)object oldValue:(__unsafe_unretained id)oldValue property:(__unsafe_unretained LZProperty *)property;
++ (void)lz_setupNewValueFromOldValue:(LZNewValueFromOldValue)newValueFormOldValue;
++ (id)lz_getNewValueFromObject:(__unsafe_unretained id)object oldValue:(__unsafe_unretained id)oldValue property:(__unsafe_unretained LZProperty *)property;
 
 #pragma mark - key配置
 /**
@@ -52,13 +52,13 @@ typedef id (^LZNewValueFromOldValue)(id object, id oldValue, LZProperty *propert
  *
  *  @param replacedKeyFromPropertyName 将属性名换为其他key去字典中取值
  */
-+ (void)mj_setupReplacedKeyFromPropertyName:(LZReplacedKeyFromPropertyName)replacedKeyFromPropertyName;
++ (void)lz_setupReplacedKeyFromPropertyName:(LZReplacedKeyFromPropertyName)replacedKeyFromPropertyName;
 /**
  *  将属性名换为其他key去字典中取值
  *
  *  @param replacedKeyFromPropertyName121 将属性名换为其他key去字典中取值
  */
-+ (void)mj_setupReplacedKeyFromPropertyName121:(LZReplacedKeyFromPropertyName121)replacedKeyFromPropertyName121;
++ (void)lz_setupReplacedKeyFromPropertyName121:(LZReplacedKeyFromPropertyName121)replacedKeyFromPropertyName121;
 
 #pragma mark - array model class配置
 /**
@@ -66,5 +66,5 @@ typedef id (^LZNewValueFromOldValue)(id object, id oldValue, LZProperty *propert
  *
  *  @param objectClassInArray          数组中需要转换的模型类
  */
-+ (void)mj_setupObjectClassInArray:(LZObjectClassInArray)objectClassInArray;
++ (void)lz_setupObjectClassInArray:(LZObjectClassInArray)objectClassInArray;
 @end

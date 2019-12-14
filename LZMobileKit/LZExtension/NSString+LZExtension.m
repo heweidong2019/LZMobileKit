@@ -9,7 +9,7 @@
 #import "NSString+LZExtension.h"
 
 @implementation NSString (LZExtension)
-- (NSString *)mj_underlineFromCamel
+- (NSString *)lz_underlineFromCamel
 {
     if (self.length == 0) return self;
     NSMutableString *string = [NSMutableString string];
@@ -27,7 +27,7 @@
     return string;
 }
 
-- (NSString *)mj_camelFromUnderline
+- (NSString *)lz_camelFromUnderline
 {
     if (self.length == 0) return self;
     NSMutableString *string = [NSMutableString string];
@@ -44,7 +44,7 @@
     return string;
 }
 
-- (NSString *)mj_firstCharLower
+- (NSString *)lz_firstCharLower
 {
     if (self.length == 0) return self;
     NSMutableString *string = [NSMutableString string];
@@ -53,7 +53,7 @@
     return string;
 }
 
-- (NSString *)mj_firstCharUpper
+- (NSString *)lz_firstCharUpper
 {
     if (self.length == 0) return self;
     NSMutableString *string = [NSMutableString string];
@@ -62,14 +62,14 @@
     return string;
 }
 
-- (BOOL)mj_isPureInt
+- (BOOL)lz_isPureInt
 {
     NSScanner *scan = [NSScanner scannerWithString:self];
     int val;
     return [scan scanInt:&val] && [scan isAtEnd];
 }
 
-- (NSURL *)mj_url
+- (NSURL *)lz_url
 {
 //    [self stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet characterSetWithCharactersInString:@"!$&'()*+,-./:;=?@_~%#[]"]];
 #pragma clang diagnostic push

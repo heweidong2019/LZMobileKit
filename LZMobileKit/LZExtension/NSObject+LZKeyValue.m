@@ -40,7 +40,7 @@
 
 #pragma mark - 错误
 static const char LZErrorKey = '\0';
-+ (NSError *)mj_error
++ (NSError *)lz_error
 {
     return objc_getAssociatedObject(self, &LZErrorKey);
 }
@@ -54,16 +54,16 @@ static const char LZErrorKey = '\0';
 /** 模型转字典时，字典的key是否参考replacedKeyFromPropertyName等方法（父类设置了，子类也会继承下来） */
 static const char LZReferenceReplacedKeyWhenCreatingKeyValuesKey = '\0';
 
-+ (void)mj_referenceReplacedKeyWhenCreatingKeyValues:(BOOL)reference
++ (void)lz_referenceReplacedKeyWhenCreatingKeyValues:(BOOL)reference
 {
     objc_setAssociatedObject(self, &LZReferenceReplacedKeyWhenCreatingKeyValuesKey, @(reference), OBJC_ASSOCIATION_ASSIGN);
 }
 
-+ (BOOL)mj_isReferenceReplacedKeyWhenCreatingKeyValues
++ (BOOL)lz_isReferenceReplacedKeyWhenCreatingKeyValues
 {
     __block id value = objc_getAssociatedObject(self, &LZReferenceReplacedKeyWhenCreatingKeyValuesKey);
     if (!value) {
-        [self mj_enumerateAllClasses:^(__unsafe_unretained Class c, BOOL *stop) {
+        [self lz_enumerateAllClasses:^(__unsafe_unretained Class c, BOOL *stop) {
             value = objc_getAssociatedObject(c, &LZReferenceReplacedKeyWhenCreatingKeyValuesKey);
             
             if (value) *stop = YES;
@@ -76,37 +76,37 @@ static const char LZReferenceReplacedKeyWhenCreatingKeyValuesKey = '\0';
 + (void)load
 {
     // 默认设置
-    [self mj_referenceReplacedKeyWhenCreatingKeyValues:YES];
+    [self lz_referenceReplacedKeyWhenCreatingKeyValues:YES];
 }
 
 #pragma mark - --公共方法--
 #pragma mark - 字典 -> 模型
-- (instancetype)mj_setKeyValues:(id)keyValues
+- (instancetype)lz_setKeyValues:(id)keyValues
 {
-    return [self mj_setKeyValues:keyValues context:nil];
+    return [self lz_setKeyValues:keyValues context:nil];
 }
 
 /**
  核心代码：
  */
-- (instancetype)mj_setKeyValues:(id)keyValues context:(NSManagedObjectContext *)context
+- (instancetype)lz_setKeyValues:(id)keyValues context:(NSManagedObjectContext *)context
 {
     // 获得JSON对象
-    keyValues = [keyValues mj_JSONObject];
+    keyValues = [keyValues lz_JSONObject];
     
     LZExtensionAssertError([keyValues isKindOfClass:[NSDictionary class]], self, [self class], @"keyValues参数不是一个字典");
     
     Class clazz = [self class];
-    NSArray *allowedPropertyNames = [clazz mj_totalAllowedPropertyNames];
-    NSArray *ignoredPropertyNames = [clazz mj_totalIgnoredPropertyNames];
+    NSArray *allowedPropertyNames = [clazz lz_totalAllowedPropertyNames];
+    NSArray *ignoredPropertyNames = [clazz lz_totalIgnoredPropertyNames];
     
     NSLocale *numberLocale = nil;
-    if ([self.class respondsToSelector:@selector(mj_numberLocale)]) {
-        numberLocale = self.class.mj_numberLocale;
+    if ([self.class respondsToSelector:@selector(lz_numberLocale)]) {
+        numberLocale = self.class.lz_numberLocale;
     }
     
     //通过封装的方法回调一个通过运行时编写的，用于返回属性列表的方法。
-    [clazz mj_enumerateProperties:^(LZProperty *property, BOOL *stop) {
+    [clazz lz_enumerateProperties:^(LZProperty *property, BOOL *stop) {
         @try {
             // 0.检测是否被忽略
             if (allowedPropertyNames.count && ![allowedPropertyNames containsObject:property.name]) return;
@@ -124,7 +124,7 @@ static const char LZReferenceReplacedKeyWhenCreatingKeyValuesKey = '\0';
             }
             
             // 值的过滤
-            id newValue = [clazz mj_getNewValueFromObject:self oldValue:value property:property];
+            id newValue = [clazz lz_getNewValueFromObject:self oldValue:value property:property];
             if (newValue != value) { // 有过滤后的新值
                 [property setValue:newValue forObject:self];
                 return;
@@ -150,18 +150,18 @@ static const char LZReferenceReplacedKeyWhenCreatingKeyValuesKey = '\0';
             }
             
             if (!type.isFromFoundation && propertyClass) { // 模型属性
-                value = [propertyClass mj_objectWithKeyValues:value context:context];
+                value = [propertyClass lz_objectWithKeyValues:value context:context];
             } else if (objectClass) {
                 if (objectClass == [NSURL class] && [value isKindOfClass:[NSArray class]]) {
                     // string array -> url array
                     NSMutableArray *urlArray = [NSMutableArray array];
                     for (NSString *string in value) {
                         if (![string isKindOfClass:[NSString class]]) continue;
-                        [urlArray addObject:string.mj_url];
+                        [urlArray addObject:string.lz_url];
                     }
                     value = urlArray;
                 } else { // 字典数组-->模型数组
-                    value = [objectClass mj_objectArrayWithKeyValuesArray:value context:context];
+                    value = [objectClass lz_objectArrayWithKeyValuesArray:value context:context];
                 }
             } else if (propertyClass == [NSString class]) {
                 if ([value isKindOfClass:[NSNumber class]]) {
@@ -175,7 +175,7 @@ static const char LZReferenceReplacedKeyWhenCreatingKeyValuesKey = '\0';
                 if (propertyClass == [NSURL class]) {
                     // NSString -> NSURL
                     // 字符串转码
-                    value = [value mj_url];
+                    value = [value lz_url];
                 } else if (type.isNumberType) {
                     NSString *oldValue = value;
                     
@@ -225,63 +225,63 @@ static const char LZReferenceReplacedKeyWhenCreatingKeyValuesKey = '\0';
     }];
     
     // 转换完毕
-    if ([self respondsToSelector:@selector(mj_didConvertToObjectWithKeyValues:)]) {
-        [self mj_didConvertToObjectWithKeyValues:keyValues];
+    if ([self respondsToSelector:@selector(lz_didConvertToObjectWithKeyValues:)]) {
+        [self lz_didConvertToObjectWithKeyValues:keyValues];
     }
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored"-Wdeprecated-declarations"
-    if ([self respondsToSelector:@selector(mj_keyValuesDidFinishConvertingToObject)]) {
-        [self mj_keyValuesDidFinishConvertingToObject];
+    if ([self respondsToSelector:@selector(lz_keyValuesDidFinishConvertingToObject)]) {
+        [self lz_keyValuesDidFinishConvertingToObject];
     }
-    if ([self respondsToSelector:@selector(mj_keyValuesDidFinishConvertingToObject:)]) {
-        [self mj_keyValuesDidFinishConvertingToObject:keyValues];
+    if ([self respondsToSelector:@selector(lz_keyValuesDidFinishConvertingToObject:)]) {
+        [self lz_keyValuesDidFinishConvertingToObject:keyValues];
     }
 #pragma clang diagnostic pop
     return self;
 }
 
-+ (instancetype)mj_objectWithKeyValues:(id)keyValues
++ (instancetype)lz_objectWithKeyValues:(id)keyValues
 {
-    return [self mj_objectWithKeyValues:keyValues context:nil];
+    return [self lz_objectWithKeyValues:keyValues context:nil];
 }
 
-+ (instancetype)mj_objectWithKeyValues:(id)keyValues context:(NSManagedObjectContext *)context
++ (instancetype)lz_objectWithKeyValues:(id)keyValues context:(NSManagedObjectContext *)context
 {
     // 获得JSON对象
-    keyValues = [keyValues mj_JSONObject];
+    keyValues = [keyValues lz_JSONObject];
     LZExtensionAssertError([keyValues isKindOfClass:[NSDictionary class]], nil, [self class], @"keyValues参数不是一个字典");
     
     if ([self isSubclassOfClass:[NSManagedObject class]] && context) {
         NSString *entityName = [NSStringFromClass(self) componentsSeparatedByString:@"."].lastObject;
-        return [[NSEntityDescription insertNewObjectForEntityForName:entityName inManagedObjectContext:context] mj_setKeyValues:keyValues context:context];
+        return [[NSEntityDescription insertNewObjectForEntityForName:entityName inManagedObjectContext:context] lz_setKeyValues:keyValues context:context];
     }
-    return [[[self alloc] init] mj_setKeyValues:keyValues];
+    return [[[self alloc] init] lz_setKeyValues:keyValues];
 }
 
-+ (instancetype)mj_objectWithFilename:(NSString *)filename
++ (instancetype)lz_objectWithFilename:(NSString *)filename
 {
     LZExtensionAssertError(filename != nil, nil, [self class], @"filename参数为nil");
     
-    return [self mj_objectWithFile:[[NSBundle mainBundle] pathForResource:filename ofType:nil]];
+    return [self lz_objectWithFile:[[NSBundle mainBundle] pathForResource:filename ofType:nil]];
 }
 
-+ (instancetype)mj_objectWithFile:(NSString *)file
++ (instancetype)lz_objectWithFile:(NSString *)file
 {
     LZExtensionAssertError(file != nil, nil, [self class], @"file参数为nil");
     
-    return [self mj_objectWithKeyValues:[NSDictionary dictionaryWithContentsOfFile:file]];
+    return [self lz_objectWithKeyValues:[NSDictionary dictionaryWithContentsOfFile:file]];
 }
 
 #pragma mark - 字典数组 -> 模型数组
-+ (NSMutableArray *)mj_objectArrayWithKeyValuesArray:(NSArray *)keyValuesArray
++ (NSMutableArray *)lz_objectArrayWithKeyValuesArray:(NSArray *)keyValuesArray
 {
-    return [self mj_objectArrayWithKeyValuesArray:keyValuesArray context:nil];
+    return [self lz_objectArrayWithKeyValuesArray:keyValuesArray context:nil];
 }
 
-+ (NSMutableArray *)mj_objectArrayWithKeyValuesArray:(id)keyValuesArray context:(NSManagedObjectContext *)context
++ (NSMutableArray *)lz_objectArrayWithKeyValuesArray:(id)keyValuesArray context:(NSManagedObjectContext *)context
 {
     // 如果是JSON字符串
-    keyValuesArray = [keyValuesArray mj_JSONObject];
+    keyValuesArray = [keyValuesArray lz_JSONObject];
     
     // 1.判断真实性
     LZExtensionAssertError([keyValuesArray isKindOfClass:[NSArray class]], nil, [self class], @"keyValuesArray参数不是一个数组");
@@ -296,9 +296,9 @@ static const char LZReferenceReplacedKeyWhenCreatingKeyValuesKey = '\0';
     // 3.遍历
     for (NSDictionary *keyValues in keyValuesArray) {
         if ([keyValues isKindOfClass:[NSArray class]]){
-            [modelArray addObject:[self mj_objectArrayWithKeyValuesArray:keyValues context:context]];
+            [modelArray addObject:[self lz_objectArrayWithKeyValuesArray:keyValues context:context]];
         } else {
-            id model = [self mj_objectWithKeyValues:keyValues context:context];
+            id model = [self lz_objectWithKeyValues:keyValues context:context];
             if (model) [modelArray addObject:model];
         }
     }
@@ -306,37 +306,37 @@ static const char LZReferenceReplacedKeyWhenCreatingKeyValuesKey = '\0';
     return modelArray;
 }
 
-+ (NSMutableArray *)mj_objectArrayWithFilename:(NSString *)filename
++ (NSMutableArray *)lz_objectArrayWithFilename:(NSString *)filename
 {
     LZExtensionAssertError(filename != nil, nil, [self class], @"filename参数为nil");
     
-    return [self mj_objectArrayWithFile:[[NSBundle mainBundle] pathForResource:filename ofType:nil]];
+    return [self lz_objectArrayWithFile:[[NSBundle mainBundle] pathForResource:filename ofType:nil]];
 }
 
-+ (NSMutableArray *)mj_objectArrayWithFile:(NSString *)file
++ (NSMutableArray *)lz_objectArrayWithFile:(NSString *)file
 {
     LZExtensionAssertError(file != nil, nil, [self class], @"file参数为nil");
     
-    return [self mj_objectArrayWithKeyValuesArray:[NSArray arrayWithContentsOfFile:file]];
+    return [self lz_objectArrayWithKeyValuesArray:[NSArray arrayWithContentsOfFile:file]];
 }
 
 #pragma mark - 模型 -> 字典
-- (NSMutableDictionary *)mj_keyValues
+- (NSMutableDictionary *)lz_keyValues
 {
-    return [self mj_keyValuesWithKeys:nil ignoredKeys:nil];
+    return [self lz_keyValuesWithKeys:nil ignoredKeys:nil];
 }
 
-- (NSMutableDictionary *)mj_keyValuesWithKeys:(NSArray *)keys
+- (NSMutableDictionary *)lz_keyValuesWithKeys:(NSArray *)keys
 {
-    return [self mj_keyValuesWithKeys:keys ignoredKeys:nil];
+    return [self lz_keyValuesWithKeys:keys ignoredKeys:nil];
 }
 
-- (NSMutableDictionary *)mj_keyValuesWithIgnoredKeys:(NSArray *)ignoredKeys
+- (NSMutableDictionary *)lz_keyValuesWithIgnoredKeys:(NSArray *)ignoredKeys
 {
-    return [self mj_keyValuesWithKeys:nil ignoredKeys:ignoredKeys];
+    return [self lz_keyValuesWithKeys:nil ignoredKeys:ignoredKeys];
 }
 
-- (NSMutableDictionary *)mj_keyValuesWithKeys:(NSArray *)keys ignoredKeys:(NSArray *)ignoredKeys
+- (NSMutableDictionary *)lz_keyValuesWithKeys:(NSArray *)keys ignoredKeys:(NSArray *)ignoredKeys
 {
     // 如果自己不是模型类, 那就返回自己
     // 模型类过滤掉 NSNull
@@ -349,10 +349,10 @@ static const char LZReferenceReplacedKeyWhenCreatingKeyValuesKey = '\0';
     id keyValues = [NSMutableDictionary dictionary];
     
     Class clazz = [self class];
-    NSArray *allowedPropertyNames = [clazz mj_totalAllowedPropertyNames];
-    NSArray *ignoredPropertyNames = [clazz mj_totalIgnoredPropertyNames];
+    NSArray *allowedPropertyNames = [clazz lz_totalAllowedPropertyNames];
+    NSArray *ignoredPropertyNames = [clazz lz_totalIgnoredPropertyNames];
     
-    [clazz mj_enumerateProperties:^(LZProperty *property, BOOL *stop) {
+    [clazz lz_enumerateProperties:^(LZProperty *property, BOOL *stop) {
         @try {
             // 0.检测是否被忽略
             if (allowedPropertyNames.count && ![allowedPropertyNames containsObject:property.name]) return;
@@ -368,16 +368,16 @@ static const char LZReferenceReplacedKeyWhenCreatingKeyValuesKey = '\0';
             LZPropertyType *type = property.type;
             Class propertyClass = type.typeClass;
             if (!type.isFromFoundation && propertyClass) {
-                value = [value mj_keyValues];
+                value = [value lz_keyValues];
             } else if ([value isKindOfClass:[NSArray class]]) {
                 // 3.处理数组里面有模型的情况
-                value = [NSObject mj_keyValuesArrayWithObjectArray:value];
+                value = [NSObject lz_keyValuesArrayWithObjectArray:value];
             } else if (propertyClass == [NSURL class]) {
                 value = [value absoluteString];
             }
             
             // 4.赋值
-            if ([clazz mj_isReferenceReplacedKeyWhenCreatingKeyValues]) {
+            if ([clazz lz_isReferenceReplacedKeyWhenCreatingKeyValues]) {
                 NSArray *propertyKeys = [[property propertyKeysForClass:clazz] firstObject];
                 NSUInteger keyCount = propertyKeys.count;
                 // 创建字典
@@ -432,35 +432,35 @@ static const char LZReferenceReplacedKeyWhenCreatingKeyValuesKey = '\0';
     }];
     
     // 转换完毕
-    if ([self respondsToSelector:@selector(mj_objectDidConvertToKeyValues:)]) {
-        [self mj_objectDidConvertToKeyValues:keyValues];
+    if ([self respondsToSelector:@selector(lz_objectDidConvertToKeyValues:)]) {
+        [self lz_objectDidConvertToKeyValues:keyValues];
     }
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored"-Wdeprecated-declarations"
-    if ([self respondsToSelector:@selector(mj_objectDidFinishConvertingToKeyValues)]) {
-        [self mj_objectDidFinishConvertingToKeyValues];
+    if ([self respondsToSelector:@selector(lz_objectDidFinishConvertingToKeyValues)]) {
+        [self lz_objectDidFinishConvertingToKeyValues];
     }
 #pragma clang diagnostic pop
     
     return keyValues;
 }
 #pragma mark - 模型数组 -> 字典数组
-+ (NSMutableArray *)mj_keyValuesArrayWithObjectArray:(NSArray *)objectArray
++ (NSMutableArray *)lz_keyValuesArrayWithObjectArray:(NSArray *)objectArray
 {
-    return [self mj_keyValuesArrayWithObjectArray:objectArray keys:nil ignoredKeys:nil];
+    return [self lz_keyValuesArrayWithObjectArray:objectArray keys:nil ignoredKeys:nil];
 }
 
-+ (NSMutableArray *)mj_keyValuesArrayWithObjectArray:(NSArray *)objectArray keys:(NSArray *)keys
++ (NSMutableArray *)lz_keyValuesArrayWithObjectArray:(NSArray *)objectArray keys:(NSArray *)keys
 {
-    return [self mj_keyValuesArrayWithObjectArray:objectArray keys:keys ignoredKeys:nil];
+    return [self lz_keyValuesArrayWithObjectArray:objectArray keys:keys ignoredKeys:nil];
 }
 
-+ (NSMutableArray *)mj_keyValuesArrayWithObjectArray:(NSArray *)objectArray ignoredKeys:(NSArray *)ignoredKeys
++ (NSMutableArray *)lz_keyValuesArrayWithObjectArray:(NSArray *)objectArray ignoredKeys:(NSArray *)ignoredKeys
 {
-    return [self mj_keyValuesArrayWithObjectArray:objectArray keys:nil ignoredKeys:ignoredKeys];
+    return [self lz_keyValuesArrayWithObjectArray:objectArray keys:nil ignoredKeys:ignoredKeys];
 }
 
-+ (NSMutableArray *)mj_keyValuesArrayWithObjectArray:(NSArray *)objectArray keys:(NSArray *)keys ignoredKeys:(NSArray *)ignoredKeys
++ (NSMutableArray *)lz_keyValuesArrayWithObjectArray:(NSArray *)objectArray keys:(NSArray *)keys ignoredKeys:(NSArray *)ignoredKeys
 {
     // 0.判断真实性
     LZExtensionAssertError([objectArray isKindOfClass:[NSArray class]], nil, [self class], @"objectArray参数不是一个数组");
@@ -469,11 +469,11 @@ static const char LZReferenceReplacedKeyWhenCreatingKeyValuesKey = '\0';
     NSMutableArray *keyValuesArray = [NSMutableArray array];
     for (id object in objectArray) {
         if (keys) {
-            id convertedObj = [object mj_keyValuesWithKeys:keys];
+            id convertedObj = [object lz_keyValuesWithKeys:keys];
             if (!convertedObj) { continue; }
             [keyValuesArray addObject:convertedObj];
         } else {
-            id convertedObj = [object mj_keyValuesWithIgnoredKeys:ignoredKeys];
+            id convertedObj = [object lz_keyValuesWithIgnoredKeys:ignoredKeys];
             if (!convertedObj) { continue; }
             [keyValuesArray addObject:convertedObj];
         }
@@ -482,7 +482,7 @@ static const char LZReferenceReplacedKeyWhenCreatingKeyValuesKey = '\0';
 }
 
 #pragma mark - 转换为JSON
-- (NSData *)mj_JSONData
+- (NSData *)lz_JSONData
 {
     if ([self isKindOfClass:[NSString class]]) {
         return [((NSString *)self) dataUsingEncoding:NSUTF8StringEncoding];
@@ -490,10 +490,10 @@ static const char LZReferenceReplacedKeyWhenCreatingKeyValuesKey = '\0';
         return (NSData *)self;
     }
     
-    return [NSJSONSerialization dataWithJSONObject:[self mj_JSONObject] options:kNilOptions error:nil];
+    return [NSJSONSerialization dataWithJSONObject:[self lz_JSONObject] options:kNilOptions error:nil];
 }
 
-- (id)mj_JSONObject
+- (id)lz_JSONObject
 {
     if ([self isKindOfClass:[NSString class]]) {
         return [NSJSONSerialization JSONObjectWithData:[((NSString *)self) dataUsingEncoding:NSUTF8StringEncoding] options:kNilOptions error:nil];
@@ -501,10 +501,10 @@ static const char LZReferenceReplacedKeyWhenCreatingKeyValuesKey = '\0';
         return [NSJSONSerialization JSONObjectWithData:(NSData *)self options:kNilOptions error:nil];
     }
     
-    return self.mj_keyValues;
+    return self.lz_keyValues;
 }
 
-- (NSString *)mj_JSONString
+- (NSString *)lz_JSONString
 {
     if ([self isKindOfClass:[NSString class]]) {
         return (NSString *)self;
@@ -512,7 +512,7 @@ static const char LZReferenceReplacedKeyWhenCreatingKeyValuesKey = '\0';
         return [[NSString alloc] initWithData:(NSData *)self encoding:NSUTF8StringEncoding];
     }
     
-    return [[NSString alloc] initWithData:[self mj_JSONData] encoding:NSUTF8StringEncoding];
+    return [[NSString alloc] initWithData:[self lz_JSONData] encoding:NSUTF8StringEncoding];
 }
 
 @end

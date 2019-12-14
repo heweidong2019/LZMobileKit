@@ -17,22 +17,22 @@
 /**
  *  这个数组中的属性名才会进行归档
  */
-+ (NSArray *)mj_allowedCodingPropertyNames;
++ (NSArray *)lz_allowedCodingPropertyNames;
 /**
  *  这个数组中的属性名将会被忽略：不进行归档
  */
-+ (NSArray *)mj_ignoredCodingPropertyNames;
++ (NSArray *)lz_ignoredCodingPropertyNames;
 @end
 
 @interface NSObject (LZCoding) <LZCoding>
 /**
  *  解码（从文件中解析对象）
  */
-- (void)mj_decode:(NSCoder *)decoder;
+- (void)lz_decode:(NSCoder *)decoder;
 /**
  *  编码（将对象写入文件中）
  */
-- (void)mj_encode:(NSCoder *)encoder;
+- (void)lz_encode:(NSCoder *)encoder;
 @end
 
 /**
@@ -42,14 +42,14 @@
 - (id)initWithCoder:(NSCoder *)decoder \
 { \
 if (self = [super init]) { \
-[self mj_decode:decoder]; \
+[self lz_decode:decoder]; \
 } \
 return self; \
 } \
 \
 - (void)encodeWithCoder:(NSCoder *)encoder \
 { \
-[self mj_encode:encoder]; \
+[self lz_encode:encoder]; \
 }
 
 #define LZExtensionCodingImplementation LZCodingImplementation

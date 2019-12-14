@@ -19,7 +19,7 @@ static const char LZIgnoredCodingPropertyNamesKey = '\0';
 
 @implementation NSObject (LZClass)
 
-+ (NSMutableDictionary *)mj_classDictForKey:(const void *)key
++ (NSMutableDictionary *)lz_classDictForKey:(const void *)key
 {
     static NSMutableDictionary *allowedPropertyNamesDict;
     static NSMutableDictionary *ignoredPropertyNamesDict;
@@ -41,7 +41,7 @@ static const char LZIgnoredCodingPropertyNamesKey = '\0';
     return nil;
 }
 
-+ (void)mj_enumerateClasses:(LZClassesEnumeration)enumeration
++ (void)lz_enumerateClasses:(LZClassesEnumeration)enumeration
 {
     // 1.没有block就直接返回
     if (enumeration == nil) return;
@@ -64,7 +64,7 @@ static const char LZIgnoredCodingPropertyNamesKey = '\0';
     }
 }
 
-+ (void)mj_enumerateAllClasses:(LZClassesEnumeration)enumeration
++ (void)lz_enumerateAllClasses:(LZClassesEnumeration)enumeration
 {
     // 1.没有block就直接返回
     if (enumeration == nil) return;
@@ -86,51 +86,51 @@ static const char LZIgnoredCodingPropertyNamesKey = '\0';
 }
 
 #pragma mark - 属性黑名单配置
-+ (void)mj_setupIgnoredPropertyNames:(LZIgnoredPropertyNames)ignoredPropertyNames
++ (void)lz_setupIgnoredPropertyNames:(LZIgnoredPropertyNames)ignoredPropertyNames
 {
-    [self mj_setupBlockReturnValue:ignoredPropertyNames key:&LZIgnoredPropertyNamesKey];
+    [self lz_setupBlockReturnValue:ignoredPropertyNames key:&LZIgnoredPropertyNamesKey];
 }
 
-+ (NSMutableArray *)mj_totalIgnoredPropertyNames
++ (NSMutableArray *)lz_totalIgnoredPropertyNames
 {
-    return [self mj_totalObjectsWithSelector:@selector(mj_ignoredPropertyNames) key:&LZIgnoredPropertyNamesKey];
+    return [self lz_totalObjectsWithSelector:@selector(lz_ignoredPropertyNames) key:&LZIgnoredPropertyNamesKey];
 }
 
 #pragma mark - 归档属性黑名单配置
-+ (void)mj_setupIgnoredCodingPropertyNames:(LZIgnoredCodingPropertyNames)ignoredCodingPropertyNames
++ (void)lz_setupIgnoredCodingPropertyNames:(LZIgnoredCodingPropertyNames)ignoredCodingPropertyNames
 {
-    [self mj_setupBlockReturnValue:ignoredCodingPropertyNames key:&LZIgnoredCodingPropertyNamesKey];
+    [self lz_setupBlockReturnValue:ignoredCodingPropertyNames key:&LZIgnoredCodingPropertyNamesKey];
 }
 
-+ (NSMutableArray *)mj_totalIgnoredCodingPropertyNames
++ (NSMutableArray *)lz_totalIgnoredCodingPropertyNames
 {
-    return [self mj_totalObjectsWithSelector:@selector(mj_ignoredCodingPropertyNames) key:&LZIgnoredCodingPropertyNamesKey];
+    return [self lz_totalObjectsWithSelector:@selector(lz_ignoredCodingPropertyNames) key:&LZIgnoredCodingPropertyNamesKey];
 }
 
 #pragma mark - 属性白名单配置
-+ (void)mj_setupAllowedPropertyNames:(LZAllowedPropertyNames)allowedPropertyNames;
++ (void)lz_setupAllowedPropertyNames:(LZAllowedPropertyNames)allowedPropertyNames;
 {
-    [self mj_setupBlockReturnValue:allowedPropertyNames key:&LZAllowedPropertyNamesKey];
+    [self lz_setupBlockReturnValue:allowedPropertyNames key:&LZAllowedPropertyNamesKey];
 }
 
-+ (NSMutableArray *)mj_totalAllowedPropertyNames
++ (NSMutableArray *)lz_totalAllowedPropertyNames
 {
-    return [self mj_totalObjectsWithSelector:@selector(mj_allowedPropertyNames) key:&LZAllowedPropertyNamesKey];
+    return [self lz_totalObjectsWithSelector:@selector(lz_allowedPropertyNames) key:&LZAllowedPropertyNamesKey];
 }
 
 #pragma mark - 归档属性白名单配置
-+ (void)mj_setupAllowedCodingPropertyNames:(LZAllowedCodingPropertyNames)allowedCodingPropertyNames
++ (void)lz_setupAllowedCodingPropertyNames:(LZAllowedCodingPropertyNames)allowedCodingPropertyNames
 {
-    [self mj_setupBlockReturnValue:allowedCodingPropertyNames key:&LZAllowedCodingPropertyNamesKey];
+    [self lz_setupBlockReturnValue:allowedCodingPropertyNames key:&LZAllowedCodingPropertyNamesKey];
 }
 
-+ (NSMutableArray *)mj_totalAllowedCodingPropertyNames
++ (NSMutableArray *)lz_totalAllowedCodingPropertyNames
 {
-    return [self mj_totalObjectsWithSelector:@selector(mj_allowedCodingPropertyNames) key:&LZAllowedCodingPropertyNamesKey];
+    return [self lz_totalObjectsWithSelector:@selector(lz_allowedCodingPropertyNames) key:&LZAllowedCodingPropertyNamesKey];
 }
 
 #pragma mark - block和方法处理:存储block的返回值
-+ (void)mj_setupBlockReturnValue:(id (^)(void))block key:(const char *)key
++ (void)lz_setupBlockReturnValue:(id (^)(void))block key:(const char *)key
 {
     if (block) {
         objc_setAssociatedObject(self, key, block(), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
@@ -141,18 +141,18 @@ static const char LZIgnoredCodingPropertyNamesKey = '\0';
     // 清空数据
     LZExtensionSemaphoreCreate
     LZExtensionSemaphoreWait
-    [[self mj_classDictForKey:key] removeAllObjects];
+    [[self lz_classDictForKey:key] removeAllObjects];
     LZExtensionSemaphoreSignal
 }
 
-+ (NSMutableArray *)mj_totalObjectsWithSelector:(SEL)selector key:(const char *)key
++ (NSMutableArray *)lz_totalObjectsWithSelector:(SEL)selector key:(const char *)key
 {
     LZExtensionSemaphoreCreate
     LZExtensionSemaphoreWait
-    NSMutableArray *array = [self mj_classDictForKey:key][NSStringFromClass(self)];
+    NSMutableArray *array = [self lz_classDictForKey:key][NSStringFromClass(self)];
     if (array == nil) {
         // 创建、存储
-        [self mj_classDictForKey:key][NSStringFromClass(self)] = array = [NSMutableArray array];
+        [self lz_classDictForKey:key][NSStringFromClass(self)] = array = [NSMutableArray array];
         
         if ([self respondsToSelector:selector]) {
 #pragma clang diagnostic push
@@ -164,7 +164,7 @@ static const char LZIgnoredCodingPropertyNamesKey = '\0';
             }
         }
         
-        [self mj_enumerateAllClasses:^(__unsafe_unretained Class c, BOOL *stop) {
+        [self lz_enumerateAllClasses:^(__unsafe_unretained Class c, BOOL *stop) {
             NSArray *subArray = objc_getAssociatedObject(c, key);
             [array addObjectsFromArray:subArray];
         }];

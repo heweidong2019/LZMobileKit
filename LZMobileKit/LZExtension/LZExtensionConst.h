@@ -79,7 +79,7 @@ LZExtensionAssert2((param) != nil, returnValue)
 #define LZLogAllIvars \
 - (NSString *)description \
 { \
-    return [self mj_keyValues].description; \
+    return [self lz_keyValues].description; \
 }
 #define LZExtensionLogAllProperties LZLogAllIvars
 
@@ -87,7 +87,7 @@ LZExtensionAssert2((param) != nil, returnValue)
 #define LZImplementDebugDescription \
 - (NSString *)debugDescription \
 { \
-return [self mj_keyValues].debugDescription; \
+return [self lz_keyValues].debugDescription; \
 }
 
 /**
