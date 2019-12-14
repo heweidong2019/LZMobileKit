@@ -1,7 +1,7 @@
 //
 // LZProgressHUD.m
 // Version 1.1.0
-// Created by Matej Bukovinski on 2.4.09.
+// Created by 何伟东 on 2019/11/14.
 //
 
 #import "LZProgressHUD.h"
