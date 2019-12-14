@@ -14,5 +14,8 @@
 @property(nonatomic,strong) UIViewController *d;
 @property(nonatomic,strong) NSNumber *e;
 @property(nonatomic,assign) CGFloat f;
+@property(nonatomic,assign) int i;
+@property(nonatomic,strong) NSDictionary *j;
+@property(nonatomic,strong) NSMutableDictionary *k;
 @end
 
