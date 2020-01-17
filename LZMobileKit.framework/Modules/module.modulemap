@@ -1,0 +1,6 @@
+framework module LZMobileKit {
+  umbrella header "LZMobileKit.h"
+
+  export *
+  module * { export * }
+}
